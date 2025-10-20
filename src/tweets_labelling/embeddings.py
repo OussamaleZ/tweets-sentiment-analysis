@@ -1,4 +1,4 @@
-from typing import Iterable, Tuple
+from typing import Iterable, Tuple, Optional
 
 import numpy as np
 import pandas as pd
@@ -17,9 +17,23 @@ def average_embedding(text: str, model, vector_size: int = 200) -> np.ndarray:
     return np.mean(word_vectors, axis=0)
 
 
-def embed_dataframe(df: pd.DataFrame, text_col: str, model, vector_size: int = 200) -> pd.DataFrame:
+def embed_dataframe_glove(df: pd.DataFrame, text_col: str, model, vector_size: int = 200) -> pd.DataFrame:
     vectors = np.vstack([average_embedding(t, model, vector_size) for t in df[text_col]])
     cols = [f"emb_{i}" for i in range(vector_size)]
+    return pd.DataFrame(vectors, columns=cols, index=df.index)
+
+
+def load_sentence_transformer(model_name: str = "all-MiniLM-L6-v2", device: Optional[str] = None):
+    from sentence_transformers import SentenceTransformer
+    st_model = SentenceTransformer(model_name, device=device)
+    return st_model
+
+
+def embed_dataframe_sbert(df: pd.DataFrame, text_col: str, st_model, batch_size: int = 32) -> pd.DataFrame:
+    texts = df[text_col].astype(str).tolist()
+    vectors = st_model.encode(texts, show_progress_bar=True, batch_size=batch_size, convert_to_tensor=False)
+    vectors = np.asarray(vectors)
+    cols = [f"emb_{i}" for i in range(vectors.shape[1])]
     return pd.DataFrame(vectors, columns=cols, index=df.index)
 
 

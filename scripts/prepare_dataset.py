@@ -6,14 +6,23 @@ import numpy as np
 import pandas as pd
 
 from tweets_labelling.preprocessing import preprocess_dataframe, read_many_csvs
-from tweets_labelling.embeddings import load_glove, embed_dataframe, aggregate_periods
+from tweets_labelling.embeddings import (
+    load_glove,
+    embed_dataframe_glove,
+    load_sentence_transformer,
+    embed_dataframe_sbert,
+    aggregate_periods,
+)
 
 
 def main():
     parser = argparse.ArgumentParser(description="Prepare dataset: preprocess, embed, aggregate, split, and save pickles")
     parser.add_argument("--train-dir", required=True, help="Directory containing training CSVs (Tweet, Timestamp, MatchID, PeriodID, ID, EventType)")
     parser.add_argument("--out-dir", required=True, help="Directory to write processed pickles")
+    parser.add_argument("--embedding", choices=["glove", "sbert"], default="glove", help="Embedding backend to use")
     parser.add_argument("--vector-size", type=int, default=200, help="Embedding size for glove-twitter-200")
+    parser.add_argument("--sbert-model", type=str, default="all-MiniLM-L6-v2", help="Sentence-Transformers model name")
+    parser.add_argument("--batch-size", type=int, default=32, help="SBERT batch size")
     args = parser.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)
@@ -23,8 +32,12 @@ def main():
     df = preprocess_dataframe(df, tweet_col="Tweet")
 
     # Embed
-    model = load_glove("glove-twitter-200")
-    vectors = embed_dataframe(df, text_col="Tweet", model=model, vector_size=args.vector_size)
+    if args.embedding == "glove":
+        model = load_glove("glove-twitter-200")
+        vectors = embed_dataframe_glove(df, text_col="Tweet", model=model, vector_size=args.vector_size)
+    else:
+        st_model = load_sentence_transformer(args.sbert_model)
+        vectors = embed_dataframe_sbert(df, text_col="Tweet", st_model=st_model, batch_size=args.batch_size)
     df_feat = pd.concat([df.reset_index(drop=True), vectors.reset_index(drop=True)], axis=1)
 
     # Drop unused raw columns and aggregate per period
