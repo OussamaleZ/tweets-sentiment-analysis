@@ -1,4 +1,6 @@
-## Tweets Sentiment/Event Classification
+## Tweets Sentiments Analysis
+
+This project was developed as part of the Machine and Deep Learning course at École Polytechnique. It served as our submission for a Kaggle challenge focused on sentiment classification of tweets.
 
 This repository implements the pipeline explored in `final_notebook.ipynb`: preprocessing tweets, creating dense text embeddings with either GloVe averages or Sentence-Transformers, then training classic ML models (Logistic Regression, Linear SVM, Decision Tree, Random Forest, XGBoost, MLP). The best-performing baselines in the notebook use averaged GloVe or MiniLM embeddings with linear models or tree ensembles.
 
