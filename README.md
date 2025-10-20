@@ -14,11 +14,8 @@ A clean, modular repository for preprocessing tweets, generating embeddings, and
 ├─ scripts/
 │  ├─ prepare_dataset.py
 │  ├─ train_xgboost.py
-│  └─ train_lstm.py
-├─ data/
-│  ├─ raw/                  # put raw CSVs here (e.g., challenge_data/*)
-│  └─ processed/            # generated datasets (pickles, features)
-├─ experiments/legacy/      # original scripts kept for reference
+│  └─ train_lstm.py          
+├─ experiments/    
 ├─ README.md
 ├─ requirements.txt
 ├─ .gitignore
@@ -57,10 +54,6 @@ python scripts/train_lstm.py --data-dir data/processed
 
 - Reusable preprocessing lives in `src/tweets_labelling/preprocessing.py`.
 - Embedding utilities live in `src/tweets_labelling/embeddings.py`.
-- Original one-off scripts are retained under `experiments/legacy/` for transparency.
 
-### License
-
-Released under the MIT License. See `LICENSE`.
 
 
